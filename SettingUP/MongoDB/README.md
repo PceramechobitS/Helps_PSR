@@ -1,6 +1,6 @@
 
-## Step 1 — Test MongoDB directly
-#### Download/install the Windows version of MongoDB Server and Shell from the official MongoDB site:
+## MongoDB Tutorial
+### 1. Download/install the Windows version of MongoDB Server and Shell from the official MongoDB site:
 - [MongoDB Server (mongod) download](https://www.mongodb.com/try/download/community)
 - [MongoDB Shell (mongosh) download](https://www.mongodb.com/try/download/shell)
 
@@ -8,7 +8,7 @@
 
 #### Install it with the default options.
 
-### Testing Installations
+### 2. Testing Installations
 #### Check the MongoDB installation:
 - `where.exe mongod` or `where.exe mongosh`
 - `Get-ChildItem "C:\Program Files\MongoDB" -Recurse -Filter "mongod.exe" -ErrorAction SilentlyContinue`
@@ -42,7 +42,7 @@ Using Mongosh: 2.x.x
 - Then you'll get: `test> ` That means MongoDB is fully operational.
 - Try: `show dbs` and `show collections`
 
-### Test creating a database
+### 3. Creating a database
 
 - Inside `mongosh`, run: `use myFirstDB`. You will see a message like: `switched to db myFirstDB
 myFirstDB>`
@@ -100,10 +100,36 @@ db.getCollection('sales').insertMany([
 ]);
 ```
 
-- Now You can see the collections in your database with:`show collections` and their strength by: `db.products.countDocuments()`
--  Drop all the  existing collections from the DB by: `db.dropDatabase();`
+- Now You can see the collections in your database with:`show collections` and their strength by: `db.products.countDocuments()` or `db.sales.countDocuments()`
 
-### A complete CRUD example
+#### Some Operations using MongoDB
+- Run a find command to view items sold on April 2014:
+```
+const salesOnApril2014 = db.getCollection('sales').find({
+  date: { $gte: new Date('2014-04-01'), $lt: new Date('2014-05-01') }
+}).count();
+```
+- Print a message to the output window:
+`console.log(`${salesOnApril2014} sales occurred in April 2014.`);`
+#### Another Cool feature of MongoDB
+- Find all of the sales that occurred in 2014, by Grouping the total sales for each product.
+```
+db.getCollection('sales').aggregate([
+  { $match: { date: { $gte: new Date('2014-01-01'), $lt: new Date('2015-01-01') } } },
+  { $group: { _id: '$item', totalSaleAmount: { $sum: { $multiply: [ '$price', '$quantity' ] } } } }
+]);
+```
+-The output 
+ ```
+[
+  { _id: 'xyz', totalSaleAmount: 150 },
+  { _id: 'abc', totalSaleAmount: 120 },
+  { _id: 'jkl', totalSaleAmount: 20 }
+]
+```
+-  Finally, to drop all the  existing collections from the DB by: `db.dropDatabase();`.
+
+### 4. A complete CRUD example
 - CREATE:
 ```
 db.products.insertOne({
@@ -131,15 +157,15 @@ Check: `db.products.findOne({  name: "Phone"})`
 - DELETE: `db.products.deleteOne({ name: "Phone"})`
 Verify: `db.products.findOne({ name: "Phone"})`
 
-### Some More Operations using  CRUD
-#### 1. CREATE — Insert documents
+## Some More Operations using  CRUD Framework
+### 1. CREATE — Insert documents
 - Insert one document: ``` db.products.insertOne({
     name: "Laptop",
     price: 50000,
     category: "Electronics",
     stock: 10
 })```
-#### 2. READ — Find documents
+### 2. READ — Find documents
 Now let's retrieve the data.
 - Show everything: `db.products.find()`
 - For easier reading: `db.products.find().pretty()`
@@ -163,7 +189,7 @@ Now let's retrieve the data.
 |$eq	|equal|
 |$ne	|not equal|
 |$in	|matches one of several values|
-#### 3. UPDATE — Modify documents
+### 3. UPDATE — Modify documents
 Now let's change some data.
 - Suppose the laptop price changes from ₹50,000 to ₹55,000.
 ```
@@ -204,7 +230,7 @@ db.products.updateOne(
 ```
 - Check: `db.products.findOne({ name: "Laptop" })`
   
-#### 4. DELETE — Remove documents
+### 4. DELETE — Remove documents
 Be careful with delete operations.
 -  Suppose we don't want the Monitor anymore: `db.products.deleteOne({
     name: "Monitor"
